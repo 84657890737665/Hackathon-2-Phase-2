@@ -2,7 +2,7 @@
 const nextConfig = {
     reactStrictMode: true,
     // Add other production optimizations here, e.g., output: 'standalone' for Docker
-    output: 'standalone',
+    // output: 'standalone', // Disabled for Vercel deployment
 };
 
 export default nextConfig;
