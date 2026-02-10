@@ -1,0 +1,139 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Virtual Environment
+venv/
+env/
+ENV/
+.venv/
+.env/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+
+# Environment variables
+.env*
+!.env.example
+
+# Coverage reports
+.coverage
+htmlcov/
+.tox/
+
+# Docs
+docs/_build/
+
+# Distribution / packaging
+.Python
+env/
+venv/
+ENV/
+.venv/
+.env/
+pip-log.txt
+pip-delete-this-directory.txt
+.venv/
+venv/
+ENV/
+.env/
+.env.backup/
+
+# Testing
+.pytest_cache/
+.coverage
+htmlcov/
+.cov/
+
+# FastAPI specific
+*.db
+*.db-journal
+
+# Backend specific
+backend/__pycache__/
+backend/*.py[cod]
+backend/*$py.class
+backend/venv/
+backend/env/
+backend/.env*
+backend/.env.backup/
+backend/.venv/
+backend/.pytest_cache/
+backend/.coverage
+backend/htmlcov/
+backend/.tox/
+backend/dist/
+backend/build/
+backend/*.egg-info/
+backend/.DS_Store
+backend/Thumbs.db
+backend/*.log
+backend/public/next.svg
+backend/public/vercel.svg
+backend/public/favicon.ico
+
+# Frontend specific
+frontend/.next/
+frontend/node_modules/
+frontend/.env*
+frontend/coverage/
+frontend/out/
+frontend/.nyc_output/
+frontend/nyc.config.js
+frontend/.npm/
+frontend/.babelrc
+frontend/.eslintrc
+frontend/.prettierrc
+frontend/.vscode/
+frontend/.idea/
+frontend/*.log
+frontend/public/next.svg
+frontend/public/vercel.svg
+frontend/public/favicon.ico
+frontend/.next/cache/
+frontend/.turbo/
+frontend/standalone/
+frontend/.output/
+frontend/.vercel/
+frontend/.expo/
+frontend/.expo-shared/
+frontend/.nuxt/
+frontend/dist/
+frontend/build/
+frontend/public/dist/
+frontend/public/build/
+frontend/public/static/
+frontend/.cache/
+frontend/.swc/
+frontend/.rts2_cache_cjs/
+frontend/.rts2_cache_esm/
+frontend/.rts2_cache_jsx/
+frontend/.rts2_cache_tsx/
