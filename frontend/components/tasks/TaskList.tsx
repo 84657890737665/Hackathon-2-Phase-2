@@ -1,22 +1,19 @@
 'use client';
 
 import { TaskCard } from './TaskCard';
+import { AnimatePresence } from 'framer-motion';
 
-interface Task {
-  id: number;
-  title: string;
-  description: string;
-  completed: boolean;
-  created_at: string;
-}
+import { Task } from '@/lib/api/taskService';
 
 interface TaskListProps {
   tasks: Task[];
   onToggleComplete: (id: number) => void;
   onDelete: (id: number) => void;
+  onEdit?: (task: Task) => void;
+  userId: number;
 }
 
-export function TaskList({ tasks, onToggleComplete, onDelete }: TaskListProps) {
+export function TaskList({ tasks, onToggleComplete, onDelete, onEdit, userId }: TaskListProps) {
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
       {tasks.map((task, index) => (
@@ -31,8 +28,10 @@ export function TaskList({ tasks, onToggleComplete, onDelete }: TaskListProps) {
             description={task.description}
             completed={task.completed}
             createdAt={new Date(task.created_at).toLocaleDateString()}
+            userId={userId}
             onToggleComplete={onToggleComplete}
             onDelete={onDelete}
+            onEdit={onEdit || (() => { })}
           />
         </div>
       ))}

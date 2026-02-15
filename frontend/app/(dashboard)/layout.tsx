@@ -1,4 +1,5 @@
 import { Header } from '@/components/layout/Header';
+import { CompletionCelebration } from '@/components/rewards/CompletionCelebration';
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
   return (
@@ -13,6 +14,8 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
             {children}
           </div>
         </main>
+        
+        <CompletionCelebration />
       </div>
     </div>
   );

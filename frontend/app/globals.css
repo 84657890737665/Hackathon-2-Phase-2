@@ -7,7 +7,7 @@
     @apply border-neutral-200;
   }
   body {
-    @apply text-neutral-800 antialiased;
+    @apply text-neutral-800 antialiased bg-white;
   }
 }
 
@@ -15,12 +15,37 @@
   .text-gradient {
     @apply bg-gradient-to-r from-primary-600 to-accent-500 bg-clip-text text-transparent;
   }
-  
+
   .button-primary {
-    @apply bg-gradient-button text-white font-semibold rounded-xl shadow-primary hover:shadow-2xl hover:scale-105 transition-all duration-200;
+    @apply bg-gradient-button text-white font-semibold rounded-lg shadow-sm hover:shadow-md hover:scale-[1.02] transition-all duration-200;
+  }
+
+  .card-base {
+    @apply bg-white rounded-lg border border-neutral-200 shadow-sm hover:shadow-md transition-all duration-200;
   }
   
-  .card-base {
-    @apply bg-white rounded-xl shadow-card border border-neutral-100 hover:shadow-card-hover hover:-translate-y-1 transition-all duration-200;
+  /* Enterprise-focused utility classes */
+  .enterprise-card {
+    @apply bg-white rounded-xl border border-neutral-200 shadow-sm hover:shadow-md transition-all duration-200;
+  }
+  
+  .enterprise-button {
+    @apply bg-primary-600 text-white font-medium rounded-lg px-4 py-2 hover:bg-primary-700 transition-colors;
+  }
+  
+  .enterprise-input {
+    @apply w-full px-3 py-2 border border-neutral-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all;
+  }
+  
+  .enterprise-table {
+    @apply w-full text-sm text-left text-neutral-500 border-collapse;
+  }
+  
+  .enterprise-table th {
+    @apply px-4 py-3 font-semibold text-neutral-700 bg-neutral-50 border-b border-neutral-200;
+  }
+  
+  .enterprise-table td {
+    @apply px-4 py-3 border-b border-neutral-100;
   }
 }

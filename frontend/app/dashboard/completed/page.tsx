@@ -143,6 +143,7 @@ export default function CompletedTasksPage() {
           tasks={tasks}
           onToggleComplete={handleToggleComplete}
           onDelete={handleDeleteTask}
+          userId={session.data.user.id}
         />
       )}
     </div>

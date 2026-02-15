@@ -1,5 +1,6 @@
-from fastapi import APIRouter, HTTPException, Depends, status
-from slowapi import Limiter, shared_limiter
+from fastapi import APIRouter, HTTPException, Depends, status, Request
+from pydantic import BaseModel
+from src.utils.limiter import limiter
 from sqlmodel import Session, select
 from typing import Optional
 from datetime import datetime
@@ -18,8 +19,8 @@ router = APIRouter(prefix="/auth", tags=["auth"])
 
 
 @router.post("/signup", response_model=dict, status_code=status.HTTP_201_CREATED)
-@shared_limiter.limit("5/minute")  # Limit signup attempts
-def signup(user_data: UserCreate, session: Session = Depends(get_session)):
+@limiter.limit("5/minute")  # Limit signup attempts
+def signup(request: Request, user_data: UserCreate, session: Session = Depends(get_session)):
     """
     Create a new user account.
 
@@ -87,6 +88,7 @@ def signup(user_data: UserCreate, session: Session = Depends(get_session)):
         "user": {
             "id": db_user.id,
             "email": db_user.email,
+            "full_name": db_user.full_name,
             "created_at": db_user.created_at.isoformat()
         },
         "message": "Account created successfully"
@@ -94,8 +96,8 @@ def signup(user_data: UserCreate, session: Session = Depends(get_session)):
 
 
 @router.post("/signin", response_model=dict)
-@shared_limiter.limit("10/minute")  # Limit sign in attempts
-def signin(user_data: UserCreate, session: Session = Depends(get_session)):
+@limiter.limit("10/minute")  # Limit sign in attempts
+def signin(request: Request, user_data: UserCreate, session: Session = Depends(get_session)):
     """
     Authenticate user and return JWT token.
 
@@ -108,14 +110,25 @@ def signin(user_data: UserCreate, session: Session = Depends(get_session)):
     """
     logger.info(f"Signin attempt for email: {user_data.email}")
     
-    from src.utils.jwt import create_access_token, create_refresh_token
+    from src.utils.jwt import create_access_token, create_refresh_token, verify_password
 
     # Use the user service to authenticate
     user_service = UserService(session)
-    user = user_service.authenticate_user(user_data.email, user_data.password)
-
+    
+    # Trace authentication step-by-step
+    user = user_service.get_user_by_email(user_data.email)
+    
     if not user:
-        logger.warning(f"Failed signin attempt for email: {user_data.email}")
+        logger.warning(f"Signin failed: User {user_data.email} not found")
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Incorrect email or password"
+        )
+    
+    is_password_correct = verify_password(user_data.password, user.hashed_password)
+    
+    if not is_password_correct:
+        logger.warning(f"Signin failed: Password mismatch for user {user_data.email}")
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Incorrect email or password"
@@ -125,6 +138,7 @@ def signin(user_data: UserCreate, session: Session = Depends(get_session)):
     token_data = {
         "sub": str(user.id),
         "email": user.email,
+        "full_name": user.full_name,
         "user_id": user.id
     }
     access_token = create_access_token(data=token_data)
@@ -136,7 +150,8 @@ def signin(user_data: UserCreate, session: Session = Depends(get_session)):
         "success": True,
         "user": {
             "id": user.id,
-            "email": user.email
+            "email": user.email,
+            "full_name": user.full_name
         },
         "token": access_token,
         "refresh_token": refresh_token,
@@ -165,13 +180,16 @@ def signout(current_user: User = Depends(get_current_user)):
     }
 
 
+class RefreshTokenRequest(BaseModel):
+    refresh_token: str
+
 @router.post("/refresh", response_model=dict)
-def refresh_token(refresh_token: str):
+def refresh_token(token_request: RefreshTokenRequest):
     """
     Refresh an access token using a refresh token.
 
     Args:
-        refresh_token: The refresh token to use for generating a new access token
+        token_request: JSON body containing the refresh token
 
     Returns:
         Dictionary with new access token
@@ -180,7 +198,7 @@ def refresh_token(refresh_token: str):
     
     from src.utils.jwt import verify_refresh_token, create_access_token, ACCESS_TOKEN_EXPIRE_MINUTES
 
-    payload = verify_refresh_token(refresh_token)
+    payload = verify_refresh_token(token_request.refresh_token)
     if not payload:
         logger.warning("Invalid refresh token provided")
         raise HTTPException(

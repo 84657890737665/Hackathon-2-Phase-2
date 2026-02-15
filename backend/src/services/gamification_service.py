@@ -27,7 +27,7 @@ class GamificationService:
 
         if completed:
             # Award base points (FR-009)
-            user.points += 10
+            user.points_balance += 10
             user.total_tasks_completed += 1
             rewards_earned["points"] += 10
 
@@ -38,13 +38,13 @@ class GamificationService:
                 if last_date == today:
                     pass
                 elif last_date == today - timedelta(days=1):
-                    user.streak += 1
+                    user.streak_count += 1
                     rewards_earned["streak_updated"] = True
                 else:
-                    user.streak = 1
+                    user.streak_count = 1
                     rewards_earned["streak_updated"] = True
             else:
-                user.streak = 1
+                user.streak_count = 1
                 rewards_earned["streak_updated"] = True
 
             user.last_completion_date = datetime.now()
@@ -54,7 +54,7 @@ class GamificationService:
             if new_achievements:
                 rewards_earned["achievements_unlocked"] = new_achievements
                 for ach in new_achievements:
-                    user.points += ach.points_reward
+                    user.points_balance += ach.points_reward
                     rewards_earned["points"] += ach.points_reward
 
             # Record Task Completion History (FR-006)
@@ -116,7 +116,7 @@ class GamificationService:
                 should_unlock = False
                 if ach_data["type"] == "total_tasks" and user.total_tasks_completed >= ach_data["value"]:
                     should_unlock = True
-                elif ach_data["type"] == "streak" and user.streak >= ach_data["value"]:
+                elif ach_data["type"] == "streak" and user.streak_count >= ach_data["value"]:
                     should_unlock = True
 
                 if should_unlock:

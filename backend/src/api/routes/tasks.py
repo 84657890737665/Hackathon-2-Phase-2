@@ -1,8 +1,9 @@
 from fastapi import APIRouter, HTTPException, Depends, status
-from slowapi import Limiter, shared_limiter
+from src.utils.limiter import limiter
 from sqlmodel import Session, select
 from typing import List
 from datetime import datetime
+import json
 
 from src.db.database import get_session
 from src.models.task import Task, TaskCreate, TaskRead, TaskUpdate, TaskPatch, TaskListRead
@@ -49,11 +50,14 @@ def get_tasks(
         )
 
     # Query tasks for the authenticated user
-    tasks = session.exec(
+    db_tasks = session.exec(
         select(Task).where(Task.user_id == user_id)
         .order_by(Task.created_at.desc())
     ).all()
-    
+
+    # Convert to response format using from_orm method
+    tasks = [TaskRead.from_orm(db_task) for db_task in db_tasks]
+
     logger.info(f"Retrieved {len(tasks)} tasks for user ID: {user_id}")
 
     return {"tasks": tasks}
@@ -93,17 +97,17 @@ def create_task(
 
     # Create the task
     db_task = Task(
-        **task_data.dict(),
+        **task_data.dict(exclude_unset=True),
         user_id=user_id
     )
 
     session.add(db_task)
     session.commit()
     session.refresh(db_task)
-    
+
     logger.info(f"Task created successfully with ID: {db_task.id}")
 
-    return db_task
+    return TaskRead.from_orm(db_task)
 
 
 @router.get("/{task_id}", response_model=TaskRead)
@@ -150,7 +154,7 @@ def get_task(
             detail="Access denied: Task does not belong to user"
         )
     
-    return task
+    return TaskRead.from_orm(task)
 
 
 @router.put("/{task_id}", response_model=TaskRead)
@@ -201,16 +205,21 @@ def update_task(
     
     # Update the task with the provided data
     update_data = task_data.dict(exclude_unset=True)
+
     for field, value in update_data.items():
-        setattr(db_task, field, value)
-    
+        if field == 'tags' and value is not None:
+            # Handle tags specially since it's stored as JSON
+            setattr(db_task, 'tags_str', json.dumps(value))
+        else:
+            setattr(db_task, field, value)
+
     db_task.updated_at = datetime.now()
-    
+
     session.add(db_task)
     session.commit()
     session.refresh(db_task)
-    
-    return db_task
+
+    return TaskRead.from_orm(db_task)
 
 
 @router.delete("/{task_id}", response_model=dict)
@@ -267,7 +276,7 @@ def delete_task(
     }
 
 
-@router.patch("/{task_id}/complete", response_model=TaskRead)
+@router.patch("/{task_id}/complete/", response_model=TaskRead)
 def toggle_task_completion(
     user_id: int,
     task_id: int,
@@ -313,26 +322,36 @@ def toggle_task_completion(
             detail="Access denied: Task does not belong to user"
         )
     
-    # Update the completion status
+    # Update the task with the provided data
+    rewards_earned = None
+    update_data = task_patch.model_dump(exclude_unset=True)
+
+    for field, value in update_data.items():
+        if field == 'tags' and value is not None:
+            # Handle tags specially since it's stored as JSON
+            setattr(db_task, 'tags_str', json.dumps(value))
+        else:
+            setattr(db_task, field, value)
+
+    # If completion status is being updated
     if task_patch.completed is not None:
         was_completed = db_task.completed
         db_task.completed = task_patch.completed
-        
+
         # If task was just marked as completed, update user stats
-        rewards_earned = None
         if not was_completed and db_task.completed:
             gamification_service = GamificationService(session)
             rewards_earned = gamification_service.update_user_stats(user_id, task_id, db_task.title, completed=True)
-    
+
     db_task.updated_at = datetime.now()
-    
+
     session.add(db_task)
     session.commit()
     session.refresh(db_task)
-    
+
     # Return task with rewards data if any (Enterprise Alignment)
-    result = db_task.model_dump()
+    result = TaskRead.from_orm(db_task).model_dump()
     if rewards_earned:
         result["rewards_earned"] = rewards_earned
-        
+
     return result

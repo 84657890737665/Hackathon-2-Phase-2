@@ -4,13 +4,14 @@ import { useRewardSystem } from '@/lib/hooks/useRewardSystem';
 
 export function PointsDisplay() {
   const { points } = useRewardSystem();
-  
+
   return (
-    <div className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-primary-50 to-accent-50 rounded-full border border-primary-200 transition-all hover:scale-105">
-      <span className="text-xl">⭐</span>
-      <span className="font-bold text-neutral-800">
-        {points} point{points !== 1 ? 's' : ''}
-      </span>
+    <div className="flex items-center gap-2 px-3 py-1.5 bg-neutral-50 rounded-lg border border-neutral-200 transition-all">
+      <span className="text-lg">📈</span>
+      <div className="text-sm font-medium text-neutral-700">
+        <div className="text-xs text-neutral-500">Productivity</div>
+        <div className="font-semibold">{points} pts</div>
+      </div>
     </div>
   );
 }

@@ -3,13 +3,15 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { authClient } from '@/lib/jwt-client';
+import { useAuth } from '@/components/AuthProvider';
 import { Navbar } from '@/components/layout/Navbar';
 
 export default function SigninPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const { signIn } = useAuth();
   const router = useRouter();
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -17,20 +19,24 @@ export default function SigninPage() {
     setIsLoading(true);
 
     try {
-      // Call signin API
-      const response = await authClient.signIn({
+      setError('');
+      // Call signin api
+      const response = await signIn({
         email,
         password,
       });
 
-      if (response && !response.error) {
+      if (response && response.success) {
         // Signin successful, redirect to dashboard
-        router.push('/dashboard/tasks');
+        router.push('/tasks');
       } else {
-        console.error('Signin failed:', response?.error);
+        const errorMsg = response?.message || response?.error || 'Invalid email or password';
+        console.error('Signin failed:', errorMsg);
+        setError(errorMsg);
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error('Signin failed:', error);
+      setError(error.message || 'An unexpected error occurred. Please try again.');
     } finally {
       setIsLoading(false);
     }
@@ -49,6 +55,12 @@ export default function SigninPage() {
               Sign in to continue your productivity journey
             </p>
           </div>
+
+          {error && (
+            <div className="mb-6 p-3 rounded-lg bg-red-50 border border-red-200 text-red-600 text-sm">
+              {error}
+            </div>
+          )}
 
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>

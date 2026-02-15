@@ -1,17 +1,15 @@
 'use client';
 
 import { useEffect } from 'react';
-import Confetti from 'react-confetti';
-import { useWindowSize } from 'react-use';
+import { motion } from 'framer-motion';
 import { useRewardSystem } from '@/lib/hooks/useRewardSystem';
 
 export function CompletionCelebration() {
-  const { width, height } = useWindowSize();
   const { showCelebration, celebrationMessage, hideCelebration } = useRewardSystem();
 
   useEffect(() => {
     if (showCelebration) {
-      const timer = setTimeout(hideCelebration, 3000);
+      const timer = setTimeout(hideCelebration, 2000);
       return () => clearTimeout(timer);
     }
   }, [showCelebration, hideCelebration]);
@@ -19,24 +17,20 @@ export function CompletionCelebration() {
   if (!showCelebration) return null;
 
   return (
-    <>
-      <Confetti
-        width={width}
-        height={height}
-        numberOfPieces={60}
-        recycle={false}
-        colors={['#5B68DB', '#14B8A6', '#FF9800', '#6B7FDB', '#2DD4BF', '#FFB74D']}
-        gravity={0.3}
-        wind={0}
-      />
-      
-      <div className="fixed inset-0 flex items-center justify-center z-50 pointer-events-none">
-        <div className="bg-white rounded-2xl shadow-modal p-8 animate-bounce-in border-2 border-primary-200">
-          <p className="text-4xl font-bold text-gradient whitespace-nowrap">
+    <div className="fixed inset-0 flex items-center justify-center z-50 pointer-events-none">
+      <motion.div
+        initial={{ scale: 0.8, opacity: 0 }}
+        animate={{ scale: 1, opacity: 1 }}
+        exit={{ scale: 0.8, opacity: 0 }}
+        className="bg-white rounded-xl shadow-lg border border-neutral-200 px-6 py-4"
+      >
+        <div className="flex items-center gap-2">
+          <span className="text-lg">✅</span>
+          <p className="text-sm font-medium text-neutral-800">
             {celebrationMessage}
           </p>
         </div>
-      </div>
-    </>
+      </motion.div>
+    </div>
   );
 }

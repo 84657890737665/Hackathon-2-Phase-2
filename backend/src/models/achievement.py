@@ -22,7 +22,7 @@ class Achievement(AchievementBase, table=True):
 
 class UserAchievement(SQLModel, table=True):
     """Link table between Users and Achievements."""
-    user_id: int = Field(foreign_key="user.id", primary_key=True)
+    user_id: int = Field(foreign_key="users.id", primary_key=True)
     achievement_id: int = Field(foreign_key="achievement.id", primary_key=True)
     unlocked_at: datetime = Field(default_factory=datetime.now)
 

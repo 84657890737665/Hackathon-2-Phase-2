@@ -51,6 +51,7 @@ class UserService:
         db_user = User(
             email=user_create.email,
             hashed_password=hashed_password,
+            full_name=user_create.name,
             created_at=datetime.now(),
             updated_at=datetime.now()
         )

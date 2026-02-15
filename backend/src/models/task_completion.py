@@ -9,7 +9,7 @@ class TaskCompletion(SQLModel, table=True):
     """Tracks task completion events for reward calculation and history log."""
     id: Optional[int] = Field(default=None, primary_key=True)
     task_id: int = Field(foreign_key="task.id")
-    user_id: int = Field(foreign_key="user.id", index=True)
+    user_id: int = Field(foreign_key="users.id", index=True)
     task_title: str = Field(max_length=255) # Denormalized for history speed
     points_awarded: int = Field(default=0)
     streak_incremented: bool = Field(default=False)

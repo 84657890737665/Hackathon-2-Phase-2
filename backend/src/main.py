@@ -8,13 +8,17 @@ from starlette.middleware.trustedhost import TrustedHostMiddleware
 from starlette.responses import Response
 from contextlib import asynccontextmanager
 from typing import AsyncGenerator
-from slowapi import Limiter, _rate_limit_exceeded_handler
 from slowapi.util import get_remote_address
 from slowapi.errors import RateLimitExceeded
+from src.utils.limiter import limiter
 from prometheus_client import Counter, Histogram
 import time
 
 from src.config.settings import validate_environment, settings
+from src.utils.logging.logger import setup_logger
+
+# Initialize logger
+logger = setup_logger(__name__)
 
 # Metrics for monitoring
 REQUEST_COUNT = Counter(
@@ -56,8 +60,7 @@ async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
     print("Shutting down...")
 
 
-# Initialize rate limiter
-limiter = Limiter(key_func=get_remote_address)
+# Rate limiter is initialized in src.utils.limiter
 
 # Create FastAPI app with lifespan
 app = FastAPI(
@@ -82,6 +85,15 @@ async def validation_exception_handler(request: Request, exc: RequestValidationE
         content={"message": "Request validation failed", "details": exc.errors()},
     )
 
+@app.exception_handler(Exception)
+async def generic_exception_handler(request: Request, exc: Exception):
+    import traceback
+    logger.error(f"Unhandled exception: {traceback.format_exc()}")
+    return JSONResponse(
+        status_code=500,
+        content={"message": "Internal Server Error"},
+    )
+
 # Add security headers using middleware
 from starlette.middleware.base import BaseHTTPMiddleware
 from starlette.responses import Response
@@ -90,11 +102,20 @@ from typing import Callable
 class SecurityHeadersMiddleware(BaseHTTPMiddleware):
     async def dispatch(self, request, call_next):
         response = await call_next(request)
-        # Add security headers
-        response.headers["X-Content-Type-Options"] = "nosniff"
-        response.headers["X-Frame-Options"] = "DENY"
-        response.headers["X-XSS-Protection"] = "1; mode=block"
-        response.headers["Strict-Transport-Security"] = f"max-age={settings.SECURITY_HSTS_MAX_AGE}; includeSubDomains; preload"
+        
+        # Security headers
+        response.headers['X-Content-Type-Options'] = 'nosniff'
+        response.headers['X-Frame-Options'] = 'DENY'
+        response.headers['X-XSS-Protection'] = '1; mode=block'
+        response.headers['Referrer-Policy'] = 'strict-origin-when-cross-origin'
+        
+        # HSTS (Strict-Transport-Security)
+        if settings.SECURITY_FORCE_HTTPS:
+            response.headers['Strict-Transport-Security'] = f"max-age={settings.SECURITY_HSTS_MAX_AGE}; includeSubDomains"
+        else:
+            # Force expire HSTS for local development if it was accidentally set
+            response.headers['Strict-Transport-Security'] = "max-age=0"
+            
         return response
 
 # Add security middleware
@@ -102,11 +123,15 @@ app.add_middleware(SecurityHeadersMiddleware)
 
 # Add rate limiting exception handler
 app.state.limiter = limiter
+from slowapi import _rate_limit_exceeded_handler
 app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
 
 # Add trusted host middleware for security
 app.add_middleware(
-    TrustedHostMiddleware, allowed_hosts=["localhost", "127.0.0.1", ".ngrok.io", "0.0.0.0"]
+    TrustedHostMiddleware, allowed_hosts=[
+        "localhost", "127.0.0.1", ".ngrok.io", "0.0.0.0",
+        "*.vercel.app", "*.hf.space", "*.huggingface.co",
+    ]
 )
 
 # Add CORS middleware
@@ -121,8 +146,9 @@ app.add_middleware(
 # Include API routes
 app.include_router(auth.router)
 app.include_router(tasks.router)
-from src.api.routes import gamification
+from src.api.routes import gamification, performance
 app.include_router(gamification.router)
+app.include_router(performance.router)
 
 @app.get("/")
 def read_root():

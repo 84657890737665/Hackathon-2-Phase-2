@@ -96,6 +96,8 @@ backend/*.egg-info/
 backend/.DS_Store
 backend/Thumbs.db
 backend/*.log
+backend/src/certs/
+backend/todo_app.db
 backend/public/next.svg
 backend/public/vercel.svg
 backend/public/favicon.ico

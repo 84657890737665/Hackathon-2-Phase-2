@@ -29,10 +29,10 @@ def get_reward_profile(
     
     return RewardProfileRead(
         user_id=user_id,
-        points_balance=current_user.points,
-        lifetime_points=current_user.points, # In this impl, currently same
-        streak_count=current_user.streak,
-        longest_streak=current_user.streak, # Simplification
+        points_balance=current_user.points_balance,
+        lifetime_points=current_user.points_balance, # In this impl, currently same
+        streak_count=current_user.streak_count,
+        longest_streak=current_user.streak_count, # Simplification
         last_activity_date=current_user.last_completion_date.date().isoformat() if current_user.last_completion_date else None,
         total_tasks_completed=current_user.total_tasks_completed,
         created_at=current_user.created_at,
@@ -81,7 +81,7 @@ def get_available_achievements(
         if ach.requirement_type == "total_tasks":
             progress = current_user.total_tasks_completed
         elif ach.requirement_type == "streak":
-            progress = current_user.streak
+            progress = current_user.streak_count
             
         percentage = min(100, (progress / ach.requirement_value) * 100) if ach.requirement_value > 0 else 0
         

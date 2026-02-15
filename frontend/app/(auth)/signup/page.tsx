@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { authClient } from '@/lib/jwt-client';
+import { useAuth } from '@/components/AuthProvider';
 import { Navbar } from '@/components/layout/Navbar';
 
 export default function SignupPage() {
@@ -12,6 +12,7 @@ export default function SignupPage() {
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const { signUp, signIn } = useAuth();
   const router = useRouter();
 
   const validatePassword = (pass: string) => {
@@ -42,18 +43,27 @@ export default function SignupPage() {
 
     try {
       // Call signup API
-      const response = await authClient.signUp({
+      const response = await signUp({
         email,
         password,
         name,
       });
 
-      if (response && !response.error) {
-        // Signup successful, redirect to dashboard
-        router.push('/dashboard/tasks');
+      if (response && response.success) {
+        // Signup successful, now automatically sign in
+        const signinResponse = await signIn({
+          email,
+          password
+        });
+
+        if (signinResponse && signinResponse.success) {
+          router.push('/tasks');
+        } else {
+          router.push('/signin'); // Fallback if auto-signin fails
+        }
       } else {
-        console.error('Signup failed:', response?.error);
-        setError(response?.error || 'Signup failed. Please try again.');
+        console.error('Signup failed:', response?.error || response?.detail);
+        setError(response?.error || response?.detail || 'Signup failed. Please try again.');
       }
     } catch (error) {
       console.error('Signup failed:', error);

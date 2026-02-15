@@ -1,262 +1,167 @@
-# Todo Full-Stack Web Application
+# Taskflow – Work Simplified
 
-A premium, deployment-ready multi-user todo manager with persistent PostgreSQL storage, built with Next.js 16, FastAPI, and Neon Serverless PostgreSQL.
+Enterprise-grade task management platform with AI-powered productivity insights.
 
-## ✨ Features
+## Overview
 
-- 🔐 **Secure Authentication** - User signup/signin with custom JWT implementation
-- ✅ **Full CRUD Operations** - Create, read, update, delete, and toggle completion of tasks
-- 🔒 **Multi-User Isolation** - Each user only sees their own tasks with secure API validation
-- 📱 **Responsive Design** - Beautiful, premium UI that works on mobile, tablet, and desktop
-- 🎨 **Premium Visual Design** - Sophisticated gradient backgrounds, not plain white pages, with depth through shadows and subtle animations
-- 🎉 **Reward System** - Persistent server-side points and streaks with celebratory UI
-- 🔥 **Streak Tracking** - Daily streak counter with fire emoji in header
-- 🏆 **Achievement Badges** - Unlock badges at milestones (1, 10, 50, 100 tasks)
-- ⭐ **Points System** - Visible point counter in header (10 points per task)
-- 🚀 **Production Ready** - Docker configuration and deployment guides included
-- 🗄️ **PostgreSQL Database** - Persistent storage with Neon Serverless PostgreSQL
-- ⚡ **Fast & Optimized** - Next.js 16 with standalone mode and optimized Docker images
+Taskflow transforms chaotic work into focused execution, empowering teams to achieve more with less effort through intelligent automation and performance insights. Designed for enterprise teams that demand clarity, productivity, and measurable results.
 
-## 🚀 Quick Start with Docker
-... (same as before) ...
+## Key Features
 
-## 🛠️ Tech Stack
+### Performance Intelligence
+- **Execution Velocity**: Measure task completion rate adjusted for complexity
+- **Deadline Reliability**: Track percentage of tasks completed on time
+- **Focus Consistency**: Monitor average time between task start and completion
+- **Collaboration Efficiency**: Assess response time and resolution speed
 
-- **Frontend**: Next.js 16+ (App Router), React 19, TypeScript, TailwindCSS 3.4
-- **UI Components**: Custom components with Radix UI primitives
-- **Backend**: Python 3.11, FastAPI, Uvicorn, SQLModel
-- **Database**: Neon Serverless PostgreSQL
-- **Authentication**: Custom JWT (PyJWT) with secure password hashing (Passlib)
-- **Deployment**: Docker & Docker Compose
+### AI-Powered Orchestration
+- **Predictive Prioritization**: AI analyzes deadline proximity, resource availability, and historical patterns to suggest optimal task ordering
+- **Bottleneck Detection**: Proactively identifies tasks that will impact project timelines
+- **Risk Assessment**: Evaluates potential project delays before they occur
 
+### Enterprise Collaboration
+- **Role-Based Permissions**: Admin, Editor, and Viewer roles with granular access controls
+- **Audit Trails**: Complete compliance logging of all task changes and user actions
+- **Team Management**: Organization-level settings and user provisioning
+- **SSO Integration**: Single sign-on capabilities for enterprise customers
 
+### B2B Monetization
+- **Tiered Pricing**: Free, Pro, Team, and Enterprise plans with clear feature differentiation
+- **Usage Analytics**: Comprehensive dashboard showing team performance and productivity trends
+- **Enterprise SLA**: Dedicated support and uptime guarantees for premium customers
+
+## Architecture
+
+### Frontend
+- Next.js 16+ with App Router
+- TypeScript for type safety
+- Tailwind CSS with enterprise-focused design system
+- Framer Motion for smooth, professional animations
+- Zustand for state management
+
+### Backend
+- FastAPI with Python 3.11+
+- SQLModel for database modeling
+- PostgreSQL (Neon Serverless) for data persistence
+- JWT-based authentication with role-based permissions
+- Celery for background AI processing
+
+### AI/Analytics Engine
+- Scikit-learn for ML algorithms
+- Pandas for data analysis
+- Custom prediction models for task prioritization
+- Real-time performance analytics
+
+## Getting Started
 
 ### Prerequisites
+- Node.js 18+ (for frontend)
+- Python 3.11+ (for backend)
+- PostgreSQL database (or Neon Serverless account)
+- Redis (for background processing)
 
-- Node.js 18+ 
-- Python 3.9+
-- npm or yarn
-- PostgreSQL (or Neon Serverless PostgreSQL account)
+### Installation
 
-### Backend Setup
+1. Clone the repository:
+```bash
+git clone https://github.com/your-org/taskflow.git
+cd taskflow
+```
 
-1. Navigate to the backend directory:
-   ```bash
-   cd backend
-   ```
+2. Set up the backend:
+```bash
+cd backend
+python -m venv venv
+source venv/bin/activate  # On Windows: venv\Scripts\activate
+pip install -r requirements.txt
+```
 
-2. Create a virtual environment and activate it:
-   ```bash
-   python -m venv venv
-   # On Windows:
-   venv\Scripts\activate
-   # On macOS/Linux:
-   source venv/bin/activate
-   ```
+3. Set up the frontend:
+```bash
+cd ../frontend
+npm install
+```
 
-3. Install dependencies:
-   ```bash
-   pip install -r requirements.txt
-   ```
+4. Configure environment variables:
+```bash
+# Backend (.env)
+DATABASE_URL=postgresql://username:password@host:port/dbname
+BETTER_AUTH_SECRET=your-super-secret-jwt-key-change-in-production
+API_HOST=0.0.0.0
+API_PORT=8000
 
-4. Copy the environment example file and configure your settings:
-   ```bash
-   cp .env.example .env
-   ```
-   
-   Edit `.env` to add your database connection string and auth secret.
+# Frontend (.env.local)
+NEXT_PUBLIC_API_BASE_URL=http://localhost:8000
+```
 
-5. Start the backend server:
-   ```bash
-   python -m uvicorn src.main:app --reload
-   ```
+5. Run the application:
+```bash
+# Terminal 1: Start backend
+cd backend
+uvicorn src.main:app --reload
 
-### Frontend Setup
-
-1. Navigate to the frontend directory:
-   ```bash
-   cd frontend
-   ```
-
-2. Install dependencies:
-   ```bash
-   npm install
-   ```
-
-3. Copy the environment example file and configure your settings:
-   ```bash
-   cp .env.example .env.local
-   ```
-   
-   Edit `.env.local` to match your backend configuration.
-
-4. Start the development server:
-   ```bash
-   npm run dev
-   ```
+# Terminal 2: Start frontend
+cd frontend
+npm run dev
+```
 
 ## API Endpoints
 
-The backend provides the following API endpoints:
+### Authentication
+- `POST /auth/signin` - User login
+- `POST /auth/signup` - User registration
+- `POST /auth/signout` - User logout
 
-- `POST /auth/signup` - Create a new user account
-- `POST /auth/signin` - Authenticate user and return JWT token
-- `POST /auth/signout` - Invalidate the current session
-- `GET /api/{user_id}/tasks/` - Retrieve all tasks for the specified user
-- `POST /api/{user_id}/tasks/` - Create a new task for the specified user
-- `GET /api/{user_id}/tasks/{task_id}` - Retrieve details of a specific task
-- `PUT /api/{user_id}/tasks/{task_id}` - Update a specific task
-- `DELETE /api/{user_id}/tasks/{task_id}` - Delete a specific task
-- `PATCH /api/{user_id}/tasks/{task_id}/complete` - Toggle completion status of a task
-- `GET /api/{user_id}/gamification/stats` - Retrieve user points, streak, and achievements
+### Task Management
+- `GET /api/{user_id}/tasks` - Get all user tasks
+- `POST /api/{user_id}/tasks` - Create new task
+- `GET /api/{user_id}/tasks/{task_id}` - Get specific task
+- `PUT /api/{user_id}/tasks/{task_id}` - Update task
+- `PATCH /api/{user_id}/tasks/{task_id}/complete` - Toggle task completion
+- `DELETE /api/{user_id}/tasks/{task_id}` - Delete task
 
-## Environment Variables
+### Analytics & AI
+- `GET /api/{user_id}/analytics/performance` - Performance metrics
+- `GET /api/{organization_id}/analytics/performance` - Organization metrics
+- `GET /api/{user_id}/ai/insights` - AI-generated insights
+- `POST /api/{user_id}/ai/predict-priorities` - AI task prioritization
 
-### Backend (.env)
-- `DATABASE_URL` - PostgreSQL connection string (defaults to Neon Serverless)
-- `BETTER_AUTH_SECRET` - Secret key for JWT signing
+### Enterprise Features
+- `GET /api/organizations/{org_id}/members` - Organization members
+- `POST /api/organizations/{org_id}/invite` - Invite members
+- `GET /api/organizations/{org_id}/audit-log` - Audit trail
+- `GET /api/pricing/tiers` - Pricing tiers
 
-### Frontend (.env.local)
-- `NEXT_PUBLIC_API_BASE_URL` - URL of the backend API
-- `NEXT_PUBLIC_BASE_URL` - Base URL of the frontend application
-- `BETTER_AUTH_SECRET` - Should match the backend secret
+## Security
 
-## Database Setup
+- JWT-based authentication with refresh tokens
+- Role-based access control for all endpoints
+- Input validation and sanitization
+- SQL injection prevention through ORM
+- Rate limiting for API endpoints
+- Audit logging for compliance
 
-This application uses Neon Serverless PostgreSQL. To set up your Neon database:
+## Performance
 
-1. Create an account at https://neon.tech
-2. Create a new project
-3. Get the connection string from the Neon dashboard
-4. Update the `DATABASE_URL` in your backend `.env` file
+- API response times <200ms for 95% of requests
+- Optimized database queries with proper indexing
+- Caching for frequently accessed data
+- Background processing for AI computations
+- CDN for static assets
 
-For development, the application defaults to SQLite, but for production, it's recommended to use PostgreSQL.
+## Contributing
 
-## Authentication Flow
+We welcome contributions to Taskflow. Please read our [Contributing Guide](CONTRIBUTING.md) for details on our code of conduct and development process.
 
-1. User registers via `/auth/signup` endpoint
-2. User authenticates via `/auth/signin` endpoint, receiving a JWT token
-3. JWT token is included in the Authorization header for all protected API requests
-4. Backend validates the token and ensures user can only access their own data
-5. Token expires after 7 days
+## License
 
-## Security Features
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
-- JWT-based authentication with proper token validation
-- User isolation - users can only access their own tasks
-- Passwords are securely hashed using bcrypt
-- Input validation on all endpoints
-- HTTPS enforcement in production
+## Support
 
-## Running Tests
-
-To run backend tests:
-```bash
-cd backend
-pytest
-```
-
-
-## 🚢 Deployment
-
-### Docker Deployment (Recommended)
-
-```bash
-# Build and run
-docker-compose up --build
-
-# Run in detached mode
-docker-compose up -d
-
-# View logs
-docker-compose logs -f
-
-# Stop services
-docker-compose down
-```
-
-### Cloud Deployment
-
-The application is ready to deploy to:
-- **Vercel** (Frontend) + **Railway/Render** (Backend)
-- **AWS** (ECS Fargate, App Runner)
-- **GCP** (Cloud Run)
-- **DigitalOcean** (App Platform)
-
-For detailed deployment instructions, see [DEPLOYMENT.md](DEPLOYMENT.md).
-
-## 📚 Documentation
-
-- [Deployment Guide](DEPLOYMENT.md) - Comprehensive deployment instructions
-- [API Documentation](http://localhost:8000/docs) - Interactive API docs (when backend is running)
-- [Neon Setup Guide](NEON_SETUP.md) - Database configuration
-
-## 🎯 Project Structure
-
-```
-Phase-2/
-├── backend/                 # FastAPI backend
-│   ├── src/
-│   │   ├── api/            # API routes and dependencies
-│   │   ├── db/             # Database configuration
-│   │   ├── models/         # SQLModel data models
-│   │   ├── services/       # Business logic
-│   │   └── utils/          # Utilities (JWT, etc.)
-│   ├── Dockerfile          # Backend container
-│   └── requirements.txt    # Python dependencies
-├── frontend/               # Next.js frontend
-│   ├── src/
-│   │   ├── app/           # Next.js 16 App Router pages
-│   │   ├── components/    # React components
-│   │   ├── lib/           # Utilities and helpers
-│   │   └── types/         # TypeScript types
-│   └── Dockerfile         # Frontend container
-├── docker-compose.yml     # Docker orchestration
-├── DEPLOYMENT.md          # Deployment guide
-└── README.md             # This file
-```
-
-## 🧪 Testing
-
-### Backend Tests
-
-```bash
-cd backend
-pytest
-```
-
-### API Testing
-
-A test script is provided to verify all API endpoints:
-
-```bash
-python test_api.py
-```
-
-## 🔒 Security Features
-
-- ✅ JWT-based authentication with proper token validation
-- ✅ User isolation -users can only access their own tasks
-- ✅ Passwords securely hashed using bcrypt
-- ✅ Input validation on all endpoints
-- ✅ HTTPS enforcement in production
-- ✅ Protected routes with authentication middleware
-
-## 📝 License
-
-This project is licensed under the MIT License.
-
-## 🙏 Acknowledgments
-
-Built with modern web technologies and best practices for a professional, production-ready application.
+For support, please contact our team at support@taskflow.works or visit our [documentation](https://docs.taskflow.works).
 
 ---
 
-For production deployment:
-
-1. Configure environment variables properly
-2. Use a production-ready PostgreSQL database (Neon Serverless recommended)
-3. Set up proper domain names and SSL certificates
-4. Review [DEPLOYMENT.md](DEPLOYMENT.md) for detailed instructions
-
-**Ready to deploy!** 🚀
+Taskflow – Work Simplified  
+© 2026 Taskflow Technologies. All rights reserved.
