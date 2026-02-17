@@ -57,7 +57,7 @@ export default function CompletedTasksPage() {
 
     try {
       // Toggle the task back to incomplete
-      const updatedTask = await taskApi.toggleTaskCompletion(session.data.user.id, id);
+      const updatedTask = await taskApi.toggleTaskCompletion(session.data.user.id, id, false);
       // Refresh the list to reflect the change
       fetchTasks();
 
